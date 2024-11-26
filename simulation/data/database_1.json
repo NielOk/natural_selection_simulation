@@ -1,0 +1,21 @@
+{
+    "environment_configs": {
+        "initial_count": 20,
+        "initial_food": 150,
+        "days_to_regenerate_food": 15,
+        "area": 800
+    },
+    "organism_paramaters": {
+        "initial_energy": 3,
+        "required_energy": 2,
+        "initial_speed": 10,
+        "initial_size": 10,
+        "initial_sense": 10,
+        "hunt_energy": 1,
+        "run_energy": 1
+    },
+    "simulation_parameters": {
+        "num_simulations": 1,
+        "num_generations": 50
+    }
+}
