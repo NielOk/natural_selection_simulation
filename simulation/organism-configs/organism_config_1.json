@@ -1,0 +1,9 @@
+{
+    "initial_energy": 3,
+    "required_energy": 2,
+    "initial_speed": 10,
+    "initial_size": 10,
+    "initial_sense": 10,
+    "hunt_energy": 1,
+    "run_energy": 1
+}
