@@ -12,6 +12,7 @@ import json
 PROJECT_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENVIRONMENTS_DIR = os.path.join(PROJECT_BASE_DIR, 'environments')
 ORGANISM_CONFIGS_DIR = os.path.join(PROJECT_BASE_DIR, 'organism-configs')
+DATA_DIR = os.path.join(PROJECT_BASE_DIR, 'data')
 
 # Unchanging simulation parameters
 food_opportunities = 3
@@ -44,3 +45,21 @@ hunt_energy = organism_config_dict["hunt_energy"]
 run_energy = organism_config_dict["run_energy"]
 
 # Simulation parameters
+num_simulations = int(input("How many times would you like to repeat the simulation?: "))
+num_generations = int(input("How many generations would you like to run each simulation for?: "))
+
+# Initialize database. 
+database_name = input("Please input the name of the database you would like to update. If the database name does not exist, a new database will be created with the name you provide: ")
+database_path = os.path.join(DATA_DIR, database_name)
+
+if not os.path.exists(database_path):
+    database = {}
+    database["environment_configs"] = environment_def_dict
+    database["organism_paramaters"] = organism_config_dict
+    database["simulation_parameters"] = {
+        "num_simulations": num_simulations,
+        "num_generations": num_generations
+    }
+    with open(database_path, 'w') as json_file:
+        json.dump(database, json_file, indent=4)
+
