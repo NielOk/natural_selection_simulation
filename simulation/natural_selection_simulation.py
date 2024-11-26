@@ -14,6 +14,8 @@ ENVIRONMENTS_DIR = os.path.join(PROJECT_BASE_DIR, 'environments')
 ORGANISM_CONFIGS_DIR = os.path.join(PROJECT_BASE_DIR, 'organism-configs')
 DATA_DIR = os.path.join(PROJECT_BASE_DIR, 'data')
 
+### Initialize parameters###
+
 # Unchanging simulation parameters
 food_opportunities = 3
 
