@@ -9,6 +9,8 @@ import random
 import statistics
 import json
 
+from organism import organism
+
 PROJECT_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENVIRONMENTS_DIR = os.path.join(PROJECT_BASE_DIR, 'environments')
 ORGANISM_CONFIGS_DIR = os.path.join(PROJECT_BASE_DIR, 'organism-configs')
@@ -32,7 +34,7 @@ days_to_regenerate_food = environment_def_dict["days_to_regenerate_food"] # Numb
 area = environment_def_dict["area"] # Numerical representation of amount of space available in the environment
 
 # Organism parameters
-organism_configs_to_use = input("Input the filename for the organism configs you would like to use (e.g. organism_configs_1.json): ")
+organism_configs_to_use = input("Input the filename for the organism configs you would like to use (e.g. organism_config_1.json): ")
 organism_config_path = os.path.join(ORGANISM_CONFIGS_DIR, organism_configs_to_use)
 
 with open(organism_config_path, 'r') as json_file:
@@ -65,3 +67,27 @@ if not os.path.exists(database_path):
     with open(database_path, 'w') as json_file:
         json.dump(database, json_file, indent=4)
 
+with open(database_path, 'r') as json_file:
+    database = json.load(json_file)
+
+database["simulation_results"] = {}
+
+# Get into the actual simulation
+for i in range(num_simulations):
+    living_ids_list = []
+    living_traits_list = [] # In living list, we store traits of organisms that are alive. Each organism is a tuple, with element 0 = speed, 1 = size, 2 = sense, 3 = energy, 4 = required energy, 5 = hunt energy, 6 = run energy
+    dead_list = []
+
+    cur_generation = 0
+    cur_organism_amount = 0
+    
+    # Initialize generation 0
+    for j in range(initial_count):
+        o = organism(initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy, living_ids_list, living_traits_list, cur_organism_amount)
+        cur_organism_amount += 1
+
+    # Simulate generation 0
+
+    
+
+    
