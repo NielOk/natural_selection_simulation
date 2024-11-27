@@ -72,9 +72,6 @@ with open(database_path, 'r') as json_file:
 
 database["simulation_results"] = {}
 
-# Get gen_0_traits
-gen_0_traits = [initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy]
-
 # Get into the actual simulation
 for i in range(num_simulations):
     living_ids_list = []
