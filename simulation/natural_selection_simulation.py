@@ -72,6 +72,9 @@ with open(database_path, 'r') as json_file:
 
 database["simulation_results"] = {}
 
+# Get gen_0_traits
+gen_0_traits = [initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy]
+
 # Get into the actual simulation
 for i in range(num_simulations):
     living_ids_list = []
@@ -79,15 +82,9 @@ for i in range(num_simulations):
     dead_list = []
 
     cur_generation = 0
-    cur_organism_amount = 0
     
     # Initialize generation 0
     for j in range(initial_count):
-        o = organism(initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy, living_ids_list, living_traits_list, cur_organism_amount)
-        cur_organism_amount += 1
+        o = organism(initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy, living_ids_list, living_traits_list)
 
     # Simulate generation 0
-
-    
-
-    
