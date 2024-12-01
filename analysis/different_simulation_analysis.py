@@ -1,10 +1,7 @@
 '''
-This is just for checking the results of two identically conditioned simulations, looking at things like general shape of the population traits.
-The simulations should have been run with the same parameters, same initial configs for the organisms, same environment, etc. 
-Also, the two simulations should be in the same database file, meaning they should have been run sequentially within a singular run
-of the natural_selection_simulation.py script. 
-Result for database_1: With 50000 bootstrapped samples, we found that the p-values for the differences in means of speed, size, and sense between the two simulations were all 0.0, as in 0 of the 50000 samples had a difference in means greater than the observed difference in means. This means that the differences in means were statistically significant. 
-Result for database_2: With 50000 bootstrapped samples, we found that the p-values for the differences in means of speed, size, and sense between the two simulations were 0.15864, 0.00042, and 0.00184, respectively. This means that the differences in means for size and sense were statistically significant, but the difference in means for speed was not statistically significant.
+This is a script to analyze the simulation data for two conditinally different simulations. It is mainly for checking the p-values of the simulation data
+of two different simulations. This file expects there to only be one simulation done for each database. 
+Result for comparing database_3 and database_4. With 50000 bootstrapped samples, we found that the p-values for the differences in means of speed, size, and sense between the two simulations were 0.0, 0.0, and 0.0, respectively. This means that the differences in means were statistically significant.
 '''
 
 import matplotlib.pyplot as plt
@@ -19,14 +16,19 @@ REPO_DIR = PROJECT_BASE_DIR[:PROJECT_BASE_DIR.find('analysis')]
 SIMULATION_DIR = os.path.join(REPO_DIR, 'simulation')
 DATA_DIR = os.path.join(SIMULATION_DIR, 'data')
 
-database_name = input("Please input the name of the database you would like to analyze: ")
-database_path = os.path.join(DATA_DIR, database_name)
+database_1_name = input("Please input the name of the first database you would like to analyze: ")
+database_1_path = os.path.join(DATA_DIR, database_1_name)
 
-with open(database_path, 'r') as json_file:
-    database = json.load(json_file)
+database_2_name = input("Please input the name of the second database you would like to analyze: ")
+database_2_path = os.path.join(DATA_DIR, database_2_name)
 
-# Function for plotting sim results
-def plot_simulation_results(database):
+with open(database_1_path, 'r') as json_file:
+    database_1 = json.load(json_file)
+
+with open(database_2_path, 'r') as json_file:
+    database_2 = json.load(json_file)
+
+def plot_simulation_results(database_1, database_2):
     all_organism_speeds = []
     all_organism_sizes = []
     all_organism_senses = []
@@ -34,36 +36,59 @@ def plot_simulation_results(database):
     speed_means = []
     size_means = []
     sense_means = []
-    for simulation_name in database["simulation_results"].keys():
-        simulation_results_dict = database["simulation_results"][simulation_name]
-        organism_speeds = simulation_results_dict["organism_speeds"]
-        organism_sizes = simulation_results_dict["organism_sizes"]
-        organism_senses = simulation_results_dict["organism_senses"]
 
-        for speed in organism_speeds:
-            all_organism_speeds.append(speed)
+    # database 1
+    simulation_results_dict = database_1["simulation_results"]["simulation_1"]
+    organism_speeds = simulation_results_dict["organism_speeds"]
+    organism_sizes = simulation_results_dict["organism_sizes"]
+    organism_senses = simulation_results_dict["organism_senses"]
 
-        for size in organism_sizes:
-            all_organism_sizes.append(size)
+    for speed in organism_speeds:
+        all_organism_speeds.append(speed)
 
-        for sense in organism_senses:
-            all_organism_senses.append(sense)
+    for size in organism_sizes:
+        all_organism_sizes.append(size)
 
-        speed_means.append(statistics.mean(organism_speeds))
-        size_means.append(statistics.mean(organism_sizes))
-        sense_means.append(statistics.mean(organism_senses))
+    for sense in organism_senses:
+        all_organism_senses.append(sense)
+
+    speed_means.append(statistics.mean(organism_speeds))
+    size_means.append(statistics.mean(organism_sizes))
+    sense_means.append(statistics.mean(organism_senses))
+
+    # database 2
+    simulation_results_dict = database_2["simulation_results"]["simulation_1"]
+    organism_speeds = simulation_results_dict["organism_speeds"]
+    organism_sizes = simulation_results_dict["organism_sizes"]
+    organism_senses = simulation_results_dict["organism_senses"]
+
+    for speed in organism_speeds:
+        all_organism_speeds.append(speed)
+
+    for size in organism_sizes:
+        all_organism_sizes.append(size)
+
+    for sense in organism_senses:
+        all_organism_senses.append(sense)
+
+    speed_means.append(statistics.mean(organism_speeds))
+    size_means.append(statistics.mean(organism_sizes))
+    sense_means.append(statistics.mean(organism_senses))
 
     plt.figure()
     plt.hist(all_organism_speeds, bins=20)
     plt.title("Combined Speeds")
+    plt.show()
 
     plt.figure()
     plt.hist(all_organism_sizes, bins=20)
     plt.title("Combined Sizes")
+    plt.show()
 
     plt.figure()
     plt.hist(all_organism_senses, bins=20)
     plt.title("Combined Senses")
+    plt.show()
 
 # Helper to concatenate simulation 1 and simulation 2 organism traits
 def concatenate_simulations(simulation_1, simulation_2):
@@ -90,24 +115,24 @@ def normalize_data(list_of_data):
 
     return all_values, all_value_probs
 
-def find_p_values(database):
+def find_p_values(database_1, database_2):
 
-    simulation_1_speeds = database["simulation_results"]["simulation_1"]["organism_speeds"]
-    simulation_2_speeds = database["simulation_results"]["simulation_2"]["organism_speeds"]
+    simulation_1_speeds = database_1["simulation_results"]["simulation_1"]["organism_speeds"]
+    simulation_2_speeds = database_2["simulation_results"]["simulation_1"]["organism_speeds"]
 
-    simulation_1_sizes = database["simulation_results"]["simulation_1"]["organism_sizes"]
-    simulation_2_sizes = database["simulation_results"]["simulation_2"]["organism_sizes"]
+    simulation_1_sizes = database_1["simulation_results"]["simulation_1"]["organism_sizes"]
+    simulation_2_sizes = database_2["simulation_results"]["simulation_1"]["organism_sizes"]
 
-    simulation_1_senses = database["simulation_results"]["simulation_1"]["organism_senses"]
-    simulation_2_senses = database["simulation_results"]["simulation_2"]["organism_senses"]
+    simulation_1_senses = database_1["simulation_results"]["simulation_1"]["organism_senses"]
+    simulation_2_senses = database_2["simulation_results"]["simulation_1"]["organism_senses"]
 
-    concatenated_speeds, concatenated_sizes, concatenated_senses = concatenate_simulations(database["simulation_results"]["simulation_1"], database["simulation_results"]["simulation_2"])
+    concatenated_speeds, concatenated_sizes, concatenated_senses = concatenate_simulations(database_1["simulation_results"]["simulation_1"], database_2["simulation_results"]["simulation_1"])
 
     all_speeds, all_speed_probs = normalize_data(concatenated_speeds)
     all_sizes, all_size_probs = normalize_data(concatenated_sizes)
     all_senses, all_sense_probs = normalize_data(concatenated_senses)
 
-    # Now, we can bootstrap. Specifically, we want to compare differences of means
+     # Now, we can bootstrap. Specifically, we want to compare differences of means
     mean_diffs_speeds = []
     mean_diffs_sizes = []
     mean_diffs_senses = []
@@ -159,5 +184,5 @@ def find_p_values(database):
     plt.show()
 
 if __name__ == '__main__':
-    find_p_values(database)
-    plot_simulation_results(database)
+    find_p_values(database_1, database_2)
+    plot_simulation_results(database_1, database_2)
