@@ -9,6 +9,7 @@ import os
 import random
 import statistics
 import json
+import gc
 
 from organism import organism
 
@@ -107,7 +108,7 @@ for i in (range(num_simulations)):
             
             # Reproduce if energy is sufficient. Function already takes care of whether or not organism is alive.
             if o.cur_energy >= o.traits[4]:
-                o.reproduce(organisms_list)
+                o.reproduce(organisms_list, initial_speed, initial_size, initial_sense)
             
             if o.cur_energy < 0 and o.living:
                 o.living = False
@@ -125,6 +126,7 @@ for i in (range(num_simulations)):
                 new_organisms_list.append(o)
 
         organisms_list = new_organisms_list
+        gc.collect()
             
     num_living = 0
     for o in organisms_list:

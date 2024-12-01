@@ -26,7 +26,7 @@ class organism():
 
         organisms_list.append(self)
 
-    def reproduce(self, organisms_list):
+    def reproduce(self, organisms_list, initial_speed, initial_size, initial_sense):
         if not self.living:
             return
 
@@ -43,16 +43,16 @@ class organism():
         new_sense = self.traits[2] + sense_mutation
 
         # Calculated required energies. This should make it so that if its traits increase in stats, the required energy increase, and if the traits decrease, required energy decreases. These should also be fairly proportional. 
-        required_energy = squeeze_with_tanh(((2 * speed_mutation + 4 * size_mutation + sense_mutation) / 3)) * self.traits[4] + self.traits[4]# Take weighted average of difference from previous generation traits to determine required energy. 
-        hunt_energy = squeeze_with_tanh(((2 * speed_mutation + 4 * size_mutation + sense_mutation) / 3)) * self.traits[5] + self.traits[5]
-        run_energy = squeeze_with_tanh(((2 * speed_mutation + 4 * size_mutation + sense_mutation) / 3)) * self.traits[6] + self.traits[6]
+        required_energy = squeeze_with_tanh((((new_speed - initial_speed) + (new_size - initial_size) + (new_sense - initial_sense)) / 3)) * self.traits[4] + self.traits[4]# Take weighted average of difference from previous generation traits to determine required energy. 
+        hunt_energy = squeeze_with_tanh((((new_speed - initial_speed) + (new_size - initial_size) + (new_sense - initial_sense)) / 3)) * self.traits[5] + self.traits[5]
+        run_energy = squeeze_with_tanh((((new_speed - initial_speed) + (new_size - initial_size) + (new_sense - initial_sense)) / 3)) * self.traits[6] + self.traits[6]
 
         child_traits = [new_speed, new_size, new_sense, self.cur_energy, required_energy, hunt_energy, run_energy]
 
         # Create child organism
         child = organism(child_traits[0], child_traits[1], child_traits[2], child_traits[3], child_traits[4], child_traits[5], child_traits[6], organisms_list)
 
-        self.cur_energy = int(self.cur_energy / 2) # Half energy goes to child.
+        self.cur_energy = self.cur_energy / 2 # Half energy goes to child.
 
     # Hunting mechanism. Both hunting and running away will cost energy. 
     def hunt(self, organisms_list, area, food_opportunities, initial_speed, initial_sense):
@@ -92,7 +92,7 @@ class organism():
                     # Now, if bigger than prey, eat it. If smaller than prey, run away.
                     if self.traits[1] > prey.traits[1]:
                         prey.living = False
-                        self.cur_energy += prey.traits[3] + prey.cur_energy # Gain energy from eating prey
+                        self.cur_energy += prey.traits[3] + self.cur_energy # Gain energy from eating prey
                         self.cur_energy -= self.traits[5] # Hunt energy cost
                         temp_living_list.remove(prey)
 
