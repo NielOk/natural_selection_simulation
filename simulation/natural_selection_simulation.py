@@ -54,7 +54,7 @@ hunt_energy = organism_config_dict["hunt_energy"]
 run_energy = organism_config_dict["run_energy"]
 
 # Simulation parameters
-num_simulations = int(input("How many times would you like to repeat the simulation?: "))
+num_simulations = 60 # To get the number of datapoints we need for bootstrapping
 num_generations = int(input("How many generations would you like to run each simulation for?: "))
 
 # Initialize database. 
@@ -127,11 +127,15 @@ for i in (range(num_simulations)):
 
         organisms_list = new_organisms_list
         gc.collect()
-            
-    num_living = 0
-    for o in organisms_list:
-        if o.living:
-            print(o.traits)
-            print(o.cur_energy)
-            num_living += 1
-    print(f"Number of organisms alive: {num_living}")
+
+    # Save results to database
+    database["simulation_results"][f"simulation_{i + 1}"] = {
+        "organism_speeds": [o.traits[0] for o in organisms_list],
+        "organism_sizes": [o.traits[1] for o in organisms_list],
+        "organism_senses": [o.traits[2] for o in organisms_list]
+    }
+
+with open(database_path, 'w') as json_file:
+    json.dump(database, json_file, indent=4)
+
+print("Simulation complete.")
