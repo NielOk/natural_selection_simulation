@@ -1,6 +1,6 @@
 {
-    "initial_count": 20,
+    "initial_count": 10,
     "initial_food": 150,
-    "days_to_regenerate_food": 15,
-    "area": 800
+    "area": 800, 
+    "harshness": 0.5
 }

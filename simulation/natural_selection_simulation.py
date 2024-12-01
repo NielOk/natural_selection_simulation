@@ -4,6 +4,7 @@ This is the file that actually runs the simulation.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 import os
 import random
 import statistics
@@ -16,10 +17,13 @@ ENVIRONMENTS_DIR = os.path.join(PROJECT_BASE_DIR, 'environments')
 ORGANISM_CONFIGS_DIR = os.path.join(PROJECT_BASE_DIR, 'organism-configs')
 DATA_DIR = os.path.join(PROJECT_BASE_DIR, 'data')
 
+def bernoulli_trial(p):
+    return random.choices([1, 0], weights=[p, 1-p], k=1)[0]
+
 ### Initialize parameters###
 
 # Unchanging simulation parameters
-food_opportunities = 3
+food_opportunities = 2
 
 # Environments will be defined by dictionaries in json files. 
 environment_to_use = input("Input the filename for environment you would like to use (e.g. environment_1.json): ")
@@ -30,8 +34,8 @@ with open(environment_path, 'r') as json_file:
 
 initial_count = environment_def_dict["initial_count"] # Initial number of organisms in simulation
 initial_food = environment_def_dict["initial_food"] # Initial amount of food available in the simulation. 
-days_to_regenerate_food = environment_def_dict["days_to_regenerate_food"] # Number of days it takes to regenerate food after being eaten.
 area = environment_def_dict["area"] # Numerical representation of amount of space available in the environment
+harshness = environment_def_dict["harshness"] # Probabilistic representation of how harsh the environment is. This is the probability an organism dies because of outside factors in a given generation. 
 
 # Organism parameters
 organism_configs_to_use = input("Input the filename for the organism configs you would like to use (e.g. organism_config_1.json): ")
@@ -73,15 +77,59 @@ with open(database_path, 'r') as json_file:
 database["simulation_results"] = {}
 
 # Get into the actual simulation
-for i in range(num_simulations):
-    living_ids_list = []
-    living_traits_list = [] # In living list, we store traits of organisms that are alive. Each organism is a tuple, with element 0 = speed, 1 = size, 2 = sense, 3 = energy, 4 = required energy, 5 = hunt energy, 6 = run energy
-    dead_list = []
+for i in (range(num_simulations)):
+    print(f"Simulation number {i + 1} out of {num_simulations}")
 
-    cur_generation = 0
+    organisms_list = []
     
     # Initialize generation 0
     for j in range(initial_count):
-        o = organism(initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy, living_ids_list, living_traits_list)
+        o = organism(initial_speed, initial_size, initial_sense, initial_energy, required_energy, hunt_energy, run_energy, organisms_list)
 
-    # Simulate generation 0
+    # Simulate generations
+    for g in tqdm(range(num_generations)):
+        
+        food_count = initial_food
+        
+        # Simulate each organism
+        new_organisms_list = []
+
+        for o in organisms_list:
+            # Skip simulating organisms that are not alive
+            if not o.living:
+                continue
+
+            # This hunt only runs through fully if organism is alive
+            o.hunt(organisms_list, area, food_opportunities, initial_speed, initial_sense)
+
+            # This gather_food only runs through fully if organism is alive
+            food_count = o.gather_food(area, initial_food, food_opportunities, initial_speed, initial_sense)
+            
+            # Reproduce if energy is sufficient. Function already takes care of whether or not organism is alive.
+            if o.cur_energy >= o.traits[4]:
+                o.reproduce(organisms_list)
+            
+            if o.cur_energy < 0 and o.living:
+                o.living = False
+
+            # Kill off organisms based on harshness
+            if bernoulli_trial(harshness):
+                o.cur_energy = 0
+                o.living = False
+            
+            # Reset energy after each day
+            o.cur_energy = o.traits[4]
+
+            # If still alive, append to new organisms list
+            if o.living:
+                new_organisms_list.append(o)
+
+        organisms_list = new_organisms_list
+            
+    num_living = 0
+    for o in organisms_list:
+        if o.living:
+            print(o.traits)
+            print(o.cur_energy)
+            num_living += 1
+    print(f"Number of organisms alive: {num_living}")
