@@ -95,6 +95,9 @@ def find_p_values(database):
     simulation_1_speeds = database["simulation_results"]["simulation_1"]["organism_speeds"]
     simulation_2_speeds = database["simulation_results"]["simulation_2"]["organism_speeds"]
 
+    print(f"Size of simulation 1 population: {len(simulation_1_speeds)}")
+    print(f"Size of simulation 2 population: {len(simulation_2_speeds)}")
+
     simulation_1_sizes = database["simulation_results"]["simulation_1"]["organism_sizes"]
     simulation_2_sizes = database["simulation_results"]["simulation_2"]["organism_sizes"]
 
