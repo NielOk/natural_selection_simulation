@@ -3,11 +3,9 @@ This is the file that actually runs the simulation.
 '''
 
 import numpy as np
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
 import random
-import statistics
 import json
 import gc
 
@@ -54,11 +52,11 @@ hunt_energy = organism_config_dict["hunt_energy"]
 run_energy = organism_config_dict["run_energy"]
 
 # Simulation parameters
-num_simulations = 60 # To get the number of datapoints we need for bootstrapping
+num_simulations = int(input("How many simulations would you like to run?: "))
 num_generations = int(input("How many generations would you like to run each simulation for?: "))
 
 # Initialize database. 
-database_name = input("Please input the name of the database you would like to update. If the database name does not exist, a new database will be created with the name you provide: ")
+database_name = input("Please input the name of the database you would like to update. If the database name does not exist, a new database will be created with the name you provide (e.g. database_1.json): ")
 database_path = os.path.join(DATA_DIR, database_name)
 
 if not os.path.exists(database_path):
