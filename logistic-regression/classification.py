@@ -58,12 +58,24 @@ def train_test_split(data, test_size=0.2):
 combined_data = population_1_tuples + population_2_tuples
 train_data, test_data = train_test_split(combined_data)
 
+# Get baseline accuracy, as in just guessing 1 or just guessing 0 
+baseline_option_1 = len(population_1_labels) / (len(population_1_labels) + len(population_2_labels))
+baseline_option_2 = 1 - baseline_option_1
+
+baseline_accuracy = 0
+if baseline_option_1 > baseline_option_2:
+    baseline_accuracy = baseline_option_1
+else:
+    baseline_accuracy = baseline_option_2
+
 def train_model(train_data, alpha, num_iterations, record_intermediate=False):
     intermediate_steps = []
     if record_intermediate:
         intermediate_steps = [i for i in range(num_iterations) if i % 1000 == 0] # Intermediate steps are every 1000 iterations, and we measure accuracy
     
     intermediate_thetas = []
+
+    offset = np.log(baseline_accuracy)
 
     # Go ahead and run logistic regression on the training data
     thetas = [0 for i in range(3)] # We have 3 features: speed, size, and sense
@@ -75,7 +87,7 @@ def train_model(train_data, alpha, num_iterations, record_intermediate=False):
             speed, size, sense, label = train_data[j]
 
             # calculate gradients changes for speed, size, and sense features
-            prediction = 1 / (1 + np.exp(-(thetas[0] * speed + thetas[1] * size + thetas[2] * sense)))
+            prediction = 1 / (1 + np.exp(-(thetas[0] * speed + thetas[1] * size + thetas[2] * sense + offset)))
 
             gradient[0] += speed * (label - prediction)
 
@@ -123,16 +135,6 @@ print(f"Train Accuracy: {train_accuracy}")
 
 test_accuracy = accuracy_calculation(test_data, thetas)
 print(f"Test Accuracy: {test_accuracy}")
-
-# Get baseline accuracy, as in just guessing 1 or just guessing 0 
-baseline_option_1 = len(population_1_labels) / (len(population_1_labels) + len(population_2_labels))
-baseline_option_2 = 1 - baseline_option_1
-
-baseline_accuracy = 0
-if baseline_option_1 > baseline_option_2:
-    baseline_accuracy = baseline_option_1
-else:
-    baseline_accuracy = baseline_option_2
 
 print(f"Baseline Accuracy: {baseline_accuracy}")
 
