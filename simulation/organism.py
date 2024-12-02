@@ -8,9 +8,6 @@ import numpy as np
 def squeeze_with_tanh(x):
     return np.tanh(x)
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
 def bernoulli_trial(p):
     return random.choices([1, 0], weights=[p, 1-p], k=1)[0]
 
