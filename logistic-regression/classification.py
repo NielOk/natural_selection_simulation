@@ -68,14 +68,14 @@ if baseline_option_1 > baseline_option_2:
 else:
     baseline_accuracy = baseline_option_2
 
+offset = np.log(baseline_accuracy)
+
 def train_model(train_data, alpha, num_iterations, record_intermediate=False):
     intermediate_steps = []
     if record_intermediate:
         intermediate_steps = [i for i in range(num_iterations) if i % 1000 == 0] # Intermediate steps are every 1000 iterations, and we measure accuracy
     
     intermediate_thetas = []
-
-    offset = np.log(baseline_accuracy)
 
     # Go ahead and run logistic regression on the training data
     thetas = [0 for i in range(3)] # We have 3 features: speed, size, and sense
@@ -116,7 +116,7 @@ def accuracy_calculation(data, thetas):
     for i in range(len(data)):
         speed, size, sense, label = data[i]
 
-        prediction = 1 / (1 + np.exp(-(thetas[0] * speed + thetas[1] * size + thetas[2] * sense)))
+        prediction = 1 / (1 + np.exp(-(thetas[0] * speed + thetas[1] * size + thetas[2] * sense + offset)))
 
         if prediction > 0.5:
             prediction = 1
