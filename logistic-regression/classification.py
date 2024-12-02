@@ -63,14 +63,15 @@ baseline_option_1 = len(population_1_labels) / (len(population_1_labels) + len(p
 baseline_option_2 = 1 - baseline_option_1
 
 baseline_accuracy = 0
+offset = 0
 if baseline_option_1 > baseline_option_2:
     baseline_accuracy = baseline_option_1
+    offset = np.log(baseline_option_1 / baseline_option_2)
 else:
     baseline_accuracy = baseline_option_2
+    offset = np.log(baseline_option_2 / baseline_option_1)
 
-offset = np.log(baseline_accuracy)
-
-def train_model(train_data, alpha, num_iterations, record_intermediate=False):
+def train_model(train_data, alpha, num_iterations, offset, record_intermediate=False):
     intermediate_steps = []
     if record_intermediate:
         intermediate_steps = [i for i in range(num_iterations) if i % 1000 == 0] # Intermediate steps are every 1000 iterations, and we measure accuracy
@@ -105,11 +106,9 @@ def train_model(train_data, alpha, num_iterations, record_intermediate=False):
 
     return thetas, intermediate_thetas, intermediate_steps
 
-thetas, intermediate_thetas, intermediate_steps = train_model(train_data, 0.01, 10000, record_intermediate=True)
+thetas, intermediate_thetas, intermediate_steps = train_model(train_data, 0.01, 10000, offset, record_intermediate=True)
 
-print(intermediate_thetas)
-
-def accuracy_calculation(data, thetas):
+def accuracy_calculation(data, thetas, offset):
     correct = 0
     total = 0
 
@@ -130,10 +129,10 @@ def accuracy_calculation(data, thetas):
 
     return correct / total
 
-train_accuracy = accuracy_calculation(train_data, thetas)
+train_accuracy = accuracy_calculation(train_data, thetas, offset)
 print(f"Train Accuracy: {train_accuracy}")
 
-test_accuracy = accuracy_calculation(test_data, thetas)
+test_accuracy = accuracy_calculation(test_data, thetas, offset)
 print(f"Test Accuracy: {test_accuracy}")
 
 print(f"Baseline Accuracy: {baseline_accuracy}")
@@ -143,8 +142,8 @@ intermediate_train_accuracies = []
 intermediate_test_accuracies = []
 if len(intermediate_thetas) > 0:
     for i in range(len(intermediate_thetas)):
-        intermediate_train_accuracy = accuracy_calculation(train_data, intermediate_thetas[i])
-        intermediate_test_accuracy = accuracy_calculation(test_data, intermediate_thetas[i])
+        intermediate_train_accuracy = accuracy_calculation(train_data, intermediate_thetas[i], offset)
+        intermediate_test_accuracy = accuracy_calculation(test_data, intermediate_thetas[i], offset)
 
         intermediate_train_accuracies.append(intermediate_train_accuracy)
         intermediate_test_accuracies.append(intermediate_test_accuracy)
