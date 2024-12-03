@@ -63,15 +63,12 @@ baseline_option_1 = len(population_1_labels) / (len(population_1_labels) + len(p
 baseline_option_2 = 1 - baseline_option_1
 
 baseline_accuracy = 0
-offset = 0
 if baseline_option_1 > baseline_option_2:
     baseline_accuracy = baseline_option_1
-    offset = np.log(baseline_option_1 / baseline_option_2)
 else:
     baseline_accuracy = baseline_option_2
-    offset = np.log(baseline_option_2 / baseline_option_1)
 
-def train_model(train_data, alpha, num_iterations, offset, record_intermediate=False):
+def train_model(train_data, alpha, num_iterations, record_intermediate=False):
     intermediate_steps = []
     if record_intermediate:
         intermediate_steps = [i for i in range(num_iterations) if i % 1000 == 0] # Intermediate steps are every 1000 iterations, and we measure accuracy
@@ -79,43 +76,46 @@ def train_model(train_data, alpha, num_iterations, offset, record_intermediate=F
     intermediate_thetas = []
 
     # Go ahead and run logistic regression on the training data
-    thetas = [0 for i in range(3)] # We have 3 features: speed, size, and sense
+    thetas = [0 for i in range(4)] # We have 3 features: speed, size, and sense
 
     # We will do num_iterations training iterations
     for i in tqdm(range(num_iterations)):
-        gradient = [0 for i in range(3)]
+        gradient = [0 for i in range(4)]
         for j in range(len(train_data)):
             speed, size, sense, label = train_data[j]
 
             # calculate gradients changes for speed, size, and sense features
-            prediction = 1 / (1 + np.exp(-(thetas[0] * speed + thetas[1] * size + thetas[2] * sense + offset)))
+            prediction = 1 / (1 + np.exp(-(thetas[0] * 1 + thetas[1] * speed + thetas[2] * size + thetas[3] * sense)))
 
-            gradient[0] += speed * (label - prediction)
+            gradient[0] += 1 * (label - prediction)
 
-            gradient[1] += size * (label - prediction)
+            gradient[1] += speed * (label - prediction)
                                 
-            gradient[2] += sense * (label - prediction)
+            gradient[2] += size * (label - prediction)
+
+            gradient[3] += sense * (label - prediction)
 
         # Update thetas based on gradient
         thetas[0] += alpha * gradient[0]
         thetas[1] += alpha * gradient[1]
         thetas[2] += alpha * gradient[2]
+        thetas[3] += alpha * gradient[3]
 
         if record_intermediate and i in intermediate_steps:
             intermediate_thetas.append(thetas.copy())
 
     return thetas, intermediate_thetas, intermediate_steps
 
-thetas, intermediate_thetas, intermediate_steps = train_model(train_data, 0.01, 10000, offset, record_intermediate=True)
+thetas, intermediate_thetas, intermediate_steps = train_model(train_data, 0.01, 10000, record_intermediate=True)
 
-def accuracy_calculation(data, thetas, offset):
+def accuracy_calculation(data, thetas):
     correct = 0
     total = 0
 
     for i in range(len(data)):
         speed, size, sense, label = data[i]
 
-        prediction = 1 / (1 + np.exp(-(thetas[0] * speed + thetas[1] * size + thetas[2] * sense + offset)))
+        prediction = 1 / (1 + np.exp(-(thetas[0] * 1 + thetas[1] * speed + thetas[2] * size + thetas[3] * sense)))
 
         if prediction > 0.5:
             prediction = 1
@@ -129,10 +129,10 @@ def accuracy_calculation(data, thetas, offset):
 
     return correct / total
 
-train_accuracy = accuracy_calculation(train_data, thetas, offset)
+train_accuracy = accuracy_calculation(train_data, thetas)
 print(f"Train Accuracy: {train_accuracy}")
 
-test_accuracy = accuracy_calculation(test_data, thetas, offset)
+test_accuracy = accuracy_calculation(test_data, thetas)
 print(f"Test Accuracy: {test_accuracy}")
 
 print(f"Baseline Accuracy: {baseline_accuracy}")
@@ -142,8 +142,8 @@ intermediate_train_accuracies = []
 intermediate_test_accuracies = []
 if len(intermediate_thetas) > 0:
     for i in range(len(intermediate_thetas)):
-        intermediate_train_accuracy = accuracy_calculation(train_data, intermediate_thetas[i], offset)
-        intermediate_test_accuracy = accuracy_calculation(test_data, intermediate_thetas[i], offset)
+        intermediate_train_accuracy = accuracy_calculation(train_data, intermediate_thetas[i])
+        intermediate_test_accuracy = accuracy_calculation(test_data, intermediate_thetas[i])
 
         intermediate_train_accuracies.append(intermediate_train_accuracy)
         intermediate_test_accuracies.append(intermediate_test_accuracy)
